@@ -3,7 +3,6 @@ package welcome
 import (
 	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -34,32 +33,17 @@ func New() *cobra.Command {
 		Use:   "welcome",
 		Short: "Show the EchoTik pixel logo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if noAnimation || !canAnimate() {
+			if noAnimation {
 				printLogo(cmd.OutOrStdout(), 0, "EchoTik CLI ready")
 				return nil
 			}
-			animateLogo(cmd.OutOrStdout(), "EchoTik CLI ready")
+			revealLogo(cmd.OutOrStdout(), "EchoTik CLI ready")
 			return nil
 		},
 	}
 
 	cmd.Flags().BoolVar(&noAnimation, "no-animation", false, "print a static logo")
 	return cmd
-}
-
-func canAnimate() bool {
-	return os.Getenv("CI") == "" && os.Getenv("TERM") != "" && os.Getenv("TERM") != "dumb"
-}
-
-func animateLogo(w io.Writer, subtitle string) {
-	fmt.Fprint(w, "\x1b[?25l")
-	defer fmt.Fprint(w, "\x1b[?25h")
-
-	for i := 0; i < 5; i++ {
-		fmt.Fprint(w, "\x1b[2J\x1b[H")
-		printLogo(w, i, subtitle)
-		time.Sleep(85 * time.Millisecond)
-	}
 }
 
 func printLogo(w io.Writer, offset int, subtitle string) {
@@ -69,6 +53,29 @@ func printLogo(w io.Writer, offset int, subtitle string) {
 		fmt.Fprintln(w, colorizeLine(line, offset))
 	}
 	fmt.Fprintf(w, "\n%s%s%s\n\n", dim, subtitle, reset)
+}
+
+func revealLogo(w io.Writer, subtitle string) {
+	lines := logoLines(0, subtitle)
+	for _, line := range lines {
+		fmt.Fprintln(w, line)
+		if line != "" {
+			time.Sleep(35 * time.Millisecond)
+		}
+	}
+}
+
+func logoLines(offset int, subtitle string) []string {
+	lines := []string{
+		"",
+		fmt.Sprintf("%s▓▓%s%s EchoTik %s%s▓▓%s", black, reset, purple, reset, black, reset),
+		"",
+	}
+	for _, line := range pixelLogo {
+		lines = append(lines, colorizeLine(line, offset))
+	}
+	lines = append(lines, "", fmt.Sprintf("%s%s%s", dim, subtitle, reset), "")
+	return lines
 }
 
 func colorizeLine(line string, offset int) string {

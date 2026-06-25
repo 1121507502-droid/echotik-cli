@@ -8,11 +8,10 @@ Install from npm:
 
 ```bash
 npm install -g echotik-cli
-echotik welcome
 ```
 
-If you want npm to show the install-time pixel logo animation, install with
-foreground lifecycle output enabled:
+The installer prints a one-time EchoTik pixel welcome when npm shows lifecycle
+script output. If your npm hides install scripts, use:
 
 ```bash
 npm install -g echotik-cli --foreground-scripts

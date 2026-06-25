@@ -48,7 +48,6 @@ const shouldAnimate =
 
 const colors = {
   reset: "\x1b[0m",
-  bold: "\x1b[1m",
   dim: "\x1b[2m",
   purple: "\x1b[38;5;135m",
   violet: "\x1b[38;5;99m",
@@ -84,8 +83,8 @@ function sleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-function renderLogoFrame(offset, subtitle) {
-  const frame = [
+function logoFrame(offset, subtitle) {
+  return [
     "",
     `${colors.black}▓▓${colors.reset}${colors.purple} EchoTik ${colors.reset}${colors.black}▓▓${colors.reset}`,
     "",
@@ -93,23 +92,25 @@ function renderLogoFrame(offset, subtitle) {
     "",
     `${colors.dim}${subtitle}${colors.reset}`,
     "",
-  ].join("\n");
-  process.stdout.write(frame + "\n");
+  ];
+}
+
+function renderWelcomeOnce(subtitle) {
+  const lines = logoFrame(0, subtitle);
+  for (const line of lines) {
+    process.stdout.write(line + "\n");
+    if (line.trim()) sleep(35);
+  }
 }
 
 function showBrandAnimation(subtitle) {
   if (!shouldAnimate) {
     console.log(`EchoTik ${subtitle}`);
-    console.log(`Tip: run "echotik welcome" to see the pixel logo anytime.`);
     return;
   }
   process.stdout.write("\x1b[?25l");
   try {
-    for (let i = 0; i < 4; i++) {
-      process.stdout.write("\x1b[2J\x1b[H");
-      renderLogoFrame(i, subtitle);
-      sleep(80);
-    }
+    renderWelcomeOnce(subtitle);
   } finally {
     process.stdout.write("\x1b[?25h");
   }
@@ -181,17 +182,27 @@ function sha256(filePath) {
   return hash.digest("hex");
 }
 
+function installedBinaryMatchesVersion(filePath) {
+  try {
+    const output = run(filePath, ["--version"], {
+      encoding: "utf8",
+      timeout: 10000,
+    });
+    return output.includes(` ${VERSION}`) || output.includes(`v${VERSION}`);
+  } catch (_) {
+    return false;
+  }
+}
+
 function install() {
   fs.mkdirSync(binDir, { recursive: true });
 
   if (fs.existsSync(dest)) {
-    try {
-      run(dest, ["--version"], { stdio: "ignore", timeout: 10000 });
+    if (installedBinaryMatchesVersion(dest)) {
       showBrandAnimation(`v${VERSION} ready`);
       return;
-    } catch (_) {
-      fs.rmSync(dest, { force: true });
     }
+    fs.rmSync(dest, { force: true });
   }
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "echotik-cli-"));
