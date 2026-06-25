@@ -1,5 +1,5 @@
 {
-  "name": "@echotik/cli",
+  "name": "echotik-cli",
   "version": "0.1.2",
   "description": "Agent-friendly CLI for EchoTik TikTok Shop intelligence APIs",
   "bin": {
