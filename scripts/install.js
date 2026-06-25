@@ -40,6 +40,79 @@ const releaseURL = `https://github.com/${REPO}/releases/download/v${VERSION}/${a
 
 const binDir = path.join(__dirname, "..", "bin");
 const dest = path.join(binDir, NAME + ext);
+const shouldAnimate =
+  process.stdout.isTTY &&
+  !process.env.CI &&
+  process.env.ECHOTIK_NO_POSTINSTALL_ANIMATION !== "1" &&
+  process.env.npm_config_loglevel !== "silent";
+
+const colors = {
+  reset: "\x1b[0m",
+  bold: "\x1b[1m",
+  dim: "\x1b[2m",
+  purple: "\x1b[38;5;135m",
+  violet: "\x1b[38;5;99m",
+  magenta: "\x1b[38;5;201m",
+  black: "\x1b[38;5;234m",
+};
+
+const pixelLogo = [
+  "██████╗ ██████╗██╗  ██╗ ██████╗ ████████╗██╗██╗  ██╗",
+  "██╔════╝██╔════╝██║  ██║██╔═══██╗╚══██╔══╝██║██║ ██╔╝",
+  "█████╗  ██║     ███████║██║   ██║   ██║   ██║█████╔╝ ",
+  "██╔══╝  ██║     ██╔══██║██║   ██║   ██║   ██║██╔═██╗ ",
+  "███████╗╚██████╗██║  ██║╚██████╔╝   ██║   ██║██║  ██╗",
+  "╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚═╝  ╚═╝",
+];
+
+function colorizeLogoLine(line, offset) {
+  let out = "";
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === " ") {
+      out += " ";
+      continue;
+    }
+    const phase = (i + offset) % 6;
+    const color = phase < 2 ? colors.purple : phase < 4 ? colors.violet : colors.magenta;
+    out += color + ch;
+  }
+  return out + colors.reset;
+}
+
+function sleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function renderLogoFrame(offset, subtitle) {
+  const frame = [
+    "",
+    `${colors.black}▓▓${colors.reset}${colors.purple} EchoTik ${colors.reset}${colors.black}▓▓${colors.reset}`,
+    "",
+    ...pixelLogo.map((line) => colorizeLogoLine(line, offset)),
+    "",
+    `${colors.dim}${subtitle}${colors.reset}`,
+    "",
+  ].join("\n");
+  process.stdout.write(frame + "\n");
+}
+
+function showBrandAnimation(subtitle) {
+  if (!shouldAnimate) {
+    console.log(`EchoTik ${subtitle}`);
+    return;
+  }
+  process.stdout.write("\x1b[?25l");
+  try {
+    for (let i = 0; i < 4; i++) {
+      process.stdout.write("\x1b[2J\x1b[H");
+      renderLogoFrame(i, subtitle);
+      sleep(80);
+    }
+  } finally {
+    process.stdout.write("\x1b[?25h");
+  }
+}
 
 function run(cmd, args, options = {}) {
   return execFileSync(cmd, args, {
@@ -113,6 +186,7 @@ function install() {
   if (fs.existsSync(dest)) {
     try {
       run(dest, ["--version"], { stdio: "ignore", timeout: 10000 });
+      showBrandAnimation(`v${VERSION} ready`);
       return;
     } catch (_) {
       fs.rmSync(dest, { force: true });
@@ -131,7 +205,7 @@ function install() {
     const extracted = findExtractedBinary(tmpDir);
     fs.copyFileSync(extracted, dest);
     fs.chmodSync(dest, 0o755);
-    console.log(`${NAME} v${VERSION} installed successfully`);
+    showBrandAnimation(`v${VERSION} installed successfully`);
   } catch (error) {
     console.error(
       `Failed to install ${NAME} v${VERSION} for ${process.platform}/${process.arch}.\n` +
