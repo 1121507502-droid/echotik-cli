@@ -23,8 +23,8 @@
   "files": [
     "scripts/install.js",
     "scripts/run.js",
-    "bin/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "license": "MIT"
 }
