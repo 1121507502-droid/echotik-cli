@@ -100,6 +100,7 @@ function renderLogoFrame(offset, subtitle) {
 function showBrandAnimation(subtitle) {
   if (!shouldAnimate) {
     console.log(`EchoTik ${subtitle}`);
+    console.log(`Tip: run "echotik welcome" to see the pixel logo anytime.`);
     return;
   }
   process.stdout.write("\x1b[?25l");

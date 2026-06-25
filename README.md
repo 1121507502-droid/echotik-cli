@@ -4,6 +4,20 @@ Agent-friendly CLI for EchoTik TikTok Shop intelligence APIs.
 
 ## Quick Start
 
+Install from npm:
+
+```bash
+npm install -g echotik-cli
+echotik welcome
+```
+
+If you want npm to show the install-time pixel logo animation, install with
+foreground lifecycle output enabled:
+
+```bash
+npm install -g echotik-cli --foreground-scripts
+```
+
 ```bash
 echotik config set-credential
 echotik auth status
@@ -33,6 +47,7 @@ export ECHOTIK_BASE_URL="https://open.echotik.live"
 - `echotik product +rank` reads product rankings.
 - `echotik shop +list` reads the offline seller library.
 - `echotik shop +rank` reads seller rankings.
+- `echotik welcome` shows the EchoTik pixel logo animation.
 
 ## Output Contract
 

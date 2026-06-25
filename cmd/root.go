@@ -11,6 +11,7 @@ import (
 	cmddoctor "github.com/echotik/cli/cmd/doctor"
 	cmdproduct "github.com/echotik/cli/cmd/product"
 	cmdshop "github.com/echotik/cli/cmd/shop"
+	cmdwelcome "github.com/echotik/cli/cmd/welcome"
 	"github.com/echotik/cli/internal/output"
 	"github.com/spf13/cobra"
 )
@@ -50,6 +51,7 @@ generic API command for direct EchoTik endpoint calls.`,
 	root.AddCommand(cmdapi.New())
 	root.AddCommand(cmdproduct.New())
 	root.AddCommand(cmdshop.New())
+	root.AddCommand(cmdwelcome.New())
 	root.AddCommand(&cobra.Command{
 		Use:   "skills",
 		Short: "Print agent skill installation guidance",
