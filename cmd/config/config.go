@@ -72,7 +72,7 @@ func newShow() *cobra.Command {
 			return output.Success(cmd.OutOrStdout(), map[string]any{
 				"baseUrl":       cfg.BaseURL,
 				"hasCredential": cfg.Username != "" && cfg.Password != "",
-				"configPath":     core.ConfigPath(),
+				"configPath":    core.ConfigPath(),
 			}, nil)
 		},
 	}

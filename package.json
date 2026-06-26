@@ -1,7 +1,7 @@
 {
   "name": "echotik-cli",
-  "version": "0.1.5",
-  "description": "Agent-friendly CLI for EchoTik TikTok Shop intelligence APIs",
+  "version": "0.2.0",
+  "description": "Agent-friendly CLI for EchoTik TikTok data intelligence APIs",
   "bin": {
     "echotik": "scripts/run.js"
   },
@@ -23,6 +23,7 @@
   "files": [
     "scripts/install.js",
     "scripts/run.js",
+    "skills",
     "README.md",
     "LICENSE"
   ],

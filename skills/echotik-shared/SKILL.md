@@ -1,7 +1,7 @@
 ---
 name: echotik-shared
-version: 0.1.0
-description: "Use when setting up echotik CLI, configuring EchoTik Basic Auth credentials, checking authentication, handling EchoTik API errors, or deciding whether to use offline or realtime TikTok Shop data."
+version: 0.2.0
+description: "Use when setting up echotik CLI, configuring EchoTik Basic Auth credentials, checking authentication, handling EchoTik API errors, or deciding between basic, analytics, and leaderboard data access."
 metadata:
   requires:
     bins: ["echotik"]
@@ -32,10 +32,38 @@ ECHOTIK_BASE_URL=https://open.echotik.live
 
 Commands return JSON envelopes. Treat `ok: true` as success and read `data`. Treat `ok: false` as a structured error and follow `error.hint`.
 
+Successful data commands return:
+
+```json
+{
+  "records": [],
+  "entities": [],
+  "relations": [],
+  "artifacts": [],
+  "raw": {}
+}
+```
+
+Use `records` for the current result set, `entities` for discovered objects, `relations` for cross-entity links, `artifacts` for media, and `raw` when EchoTik exposes fields that are not normalized yet.
+
+## Command model
+
+Use:
+
+```bash
+echotik <entity> <capability> <operation>
+```
+
+- `basic`: discovery and object details.
+- `analytics`: related objects, trends, and relationship analysis.
+- `leaderboard`: ranking and opportunity discovery.
+
 ## Data freshness
 
-- Offline product/shop library commands expose `meta.freshness = "offline_t_plus_1"`.
-- Realtime search exposes `meta.freshness = "realtime"` and may need retry/backoff if EchoTik risk control or server errors occur.
+- Offline EchoTik library commands expose `meta.freshness = "offline_t_plus_1"`.
+- Realtime commands expose `meta.freshness = "realtime"` and may need retry/backoff if EchoTik risk control or server errors occur.
+- Ranking commands expose `meta.freshness = "ranking"`.
+- Local media commands expose `meta.freshness = "local"`.
 
 ## Error handling
 
