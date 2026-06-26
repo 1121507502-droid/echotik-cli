@@ -9,24 +9,23 @@ import (
 )
 
 const (
-	reset   = "\x1b[0m"
-	dim     = "\x1b[2m"
-	purple  = "\x1b[38;5;135m"
-	violet  = "\x1b[38;5;99m"
-	magenta = "\x1b[38;5;201m"
-	black   = "\x1b[38;5;234m"
+	reset  = "\x1b[0m"
+	italic = "\x1b[3m"
+	dim    = "\x1b[2m"
+	purple = "\x1b[38;2;101;90;236m"
+	muted  = "\x1b[38;2;128;123;164m"
+	blue   = "\x1b[38;2;88;112;255m"
 )
 
-var pixelLogo = []string{
-	"██████╗ ██████╗██╗  ██╗ ██████╗ ████████╗██╗██╗  ██╗",
-	"██╔════╝██╔════╝██║  ██║██╔═══██╗╚══██╔══╝██║██║ ██╔╝",
-	"█████╗  ██║     ███████║██║   ██║   ██║   ██║█████╔╝ ",
-	"██╔══╝  ██║     ██╔══██║██║   ██║   ██║   ██║██╔═██╗ ",
-	"███████╗╚██████╗██║  ██║╚██████╔╝   ██║   ██║██║  ██╗",
-	"╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚═╝  ╚═╝",
+var italicLogo = []string{
+	`   ______     __        ______     __  __     ______   __     __  __`,
+	`  /\  ___\   /\ \      /\  ___\   /\ \_\ \   /\  __ \ /\ \   /\ \/ /`,
+	`  \ \  __\   \ \ \____ \ \ \____  \ \  __ \  \ \ \/\ \\ \ \  \ \  _"-.`,
+	`   \ \_____\  \ \_____\ \ \_____\  \ \_\ \_\  \ \_____\\ \_\  \ \_\ \_\`,
+	`    \/_____/   \/_____/  \/_____/   \/_/\/_/   \/_____/ \/_/   \/_/\/_/`,
 }
 
-func New() *cobra.Command {
+func New(cliVersion string) *cobra.Command {
 	var noAnimation bool
 
 	cmd := &cobra.Command{
@@ -34,10 +33,10 @@ func New() *cobra.Command {
 		Short: "Show the EchoTik pixel logo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if noAnimation {
-				printLogo(cmd.OutOrStdout(), 0, "EchoTik CLI ready")
+				printLogo(cmd.OutOrStdout(), cliVersion, "EchoTik CLI ready")
 				return nil
 			}
-			revealLogo(cmd.OutOrStdout(), "EchoTik CLI ready")
+			revealLogo(cmd.OutOrStdout(), cliVersion, "EchoTik CLI ready")
 			return nil
 		},
 	}
@@ -46,17 +45,14 @@ func New() *cobra.Command {
 	return cmd
 }
 
-func printLogo(w io.Writer, offset int, subtitle string) {
-	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%s▓▓%s%s EchoTik %s%s▓▓%s\n\n", black, reset, purple, reset, black, reset)
-	for _, line := range pixelLogo {
-		fmt.Fprintln(w, colorizeLine(line, offset))
+func printLogo(w io.Writer, cliVersion, subtitle string) {
+	for _, line := range logoLines(cliVersion, subtitle) {
+		fmt.Fprintln(w, line)
 	}
-	fmt.Fprintf(w, "\n%s%s%s\n\n", dim, subtitle, reset)
 }
 
-func revealLogo(w io.Writer, subtitle string) {
-	lines := logoLines(0, subtitle)
+func revealLogo(w io.Writer, cliVersion, subtitle string) {
+	lines := logoLines(cliVersion, subtitle)
 	for _, line := range lines {
 		fmt.Fprintln(w, line)
 		if line != "" {
@@ -65,35 +61,28 @@ func revealLogo(w io.Writer, subtitle string) {
 	}
 }
 
-func logoLines(offset int, subtitle string) []string {
-	lines := []string{
-		"",
-		fmt.Sprintf("%s▓▓%s%s EchoTik %s%s▓▓%s", black, reset, purple, reset, black, reset),
-		"",
-	}
-	for _, line := range pixelLogo {
-		lines = append(lines, colorizeLine(line, offset))
+func logoLines(cliVersion, subtitle string) []string {
+	lines := []string{""}
+	for i, line := range italicLogo {
+		suffix := ""
+		switch i {
+		case 1:
+			suffix = fmt.Sprintf("  %sechotik cli %s%s", muted, displayVersion(cliVersion), reset)
+		case 2:
+			suffix = fmt.Sprintf("  %sready%s", blue, reset)
+		}
+		lines = append(lines, fmt.Sprintf("%s%s%s%s%s", italic, purple, line, reset, suffix))
 	}
 	lines = append(lines, "", fmt.Sprintf("%s%s%s", dim, subtitle, reset), "")
 	return lines
 }
 
-func colorizeLine(line string, offset int) string {
-	out := ""
-	for i, ch := range line {
-		if ch == ' ' {
-			out += " "
-			continue
-		}
-
-		switch phase := (i + offset) % 6; {
-		case phase < 2:
-			out += purple + string(ch)
-		case phase < 4:
-			out += violet + string(ch)
-		default:
-			out += magenta + string(ch)
-		}
+func displayVersion(cliVersion string) string {
+	if cliVersion == "" {
+		return "vdev"
 	}
-	return out + reset
+	if cliVersion[0] == 'v' {
+		return cliVersion
+	}
+	return "v" + cliVersion
 }

@@ -59,7 +59,7 @@ plus a generic API command for direct EchoTik endpoint calls.`,
 	root.AddCommand(cmdvideo.New())
 	root.AddCommand(cmdlive.New())
 	root.AddCommand(cmdmedia.New())
-	root.AddCommand(cmdwelcome.New())
+	root.AddCommand(cmdwelcome.New(version))
 	root.AddCommand(cmdskills.New())
 	return root
 }

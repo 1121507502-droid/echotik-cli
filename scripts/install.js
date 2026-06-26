@@ -48,47 +48,34 @@ const shouldAnimate =
 
 const colors = {
   reset: "\x1b[0m",
+  italic: "\x1b[3m",
   dim: "\x1b[2m",
-  purple: "\x1b[38;5;135m",
-  violet: "\x1b[38;5;99m",
-  magenta: "\x1b[38;5;201m",
-  black: "\x1b[38;5;234m",
+  purple: "\x1b[38;2;101;90;236m",
+  muted: "\x1b[38;2;128;123;164m",
+  blue: "\x1b[38;2;88;112;255m",
 };
 
-const pixelLogo = [
-  "██████╗ ██████╗██╗  ██╗ ██████╗ ████████╗██╗██╗  ██╗",
-  "██╔════╝██╔════╝██║  ██║██╔═══██╗╚══██╔══╝██║██║ ██╔╝",
-  "█████╗  ██║     ███████║██║   ██║   ██║   ██║█████╔╝ ",
-  "██╔══╝  ██║     ██╔══██║██║   ██║   ██║   ██║██╔═██╗ ",
-  "███████╗╚██████╗██║  ██║╚██████╔╝   ██║   ██║██║  ██╗",
-  "╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚═╝  ╚═╝",
+const italicLogo = [
+  "   ______     __        ______     __  __     ______   __     __  __",
+  "  /\\  ___\\   /\\ \\      /\\  ___\\   /\\ \\_\\ \\   /\\  __ \\ /\\ \\   /\\ \\/ /",
+  "  \\ \\  __\\   \\ \\ \\____ \\ \\ \\____  \\ \\  __ \\  \\ \\ \\/\\ \\\\ \\ \\  \\ \\  _\"-.",
+  "   \\ \\_____\\  \\ \\_____\\ \\ \\_____\\  \\ \\_\\ \\_\\  \\ \\_____\\\\ \\_\\  \\ \\_\\ \\_\\",
+  "    \\/_____/   \\/_____/  \\/_____/   \\/_/\\/_/   \\/_____/ \\/_/   \\/_/\\/_/",
 ];
-
-function colorizeLogoLine(line, offset) {
-  let out = "";
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === " ") {
-      out += " ";
-      continue;
-    }
-    const phase = (i + offset) % 6;
-    const color = phase < 2 ? colors.purple : phase < 4 ? colors.violet : colors.magenta;
-    out += color + ch;
-  }
-  return out + colors.reset;
-}
 
 function sleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-function logoFrame(offset, subtitle) {
+function logoFrame(subtitle) {
+  const versionText = `echotik cli v${VERSION}`;
+  const statusText = subtitle.includes("installed") ? "installed" : "ready";
   return [
     "",
-    `${colors.black}▓▓${colors.reset}${colors.purple} EchoTik ${colors.reset}${colors.black}▓▓${colors.reset}`,
-    "",
-    ...pixelLogo.map((line) => colorizeLogoLine(line, offset)),
+    ...italicLogo.map((line, index) => {
+      const suffix = index === 1 ? `  ${colors.muted}${versionText}${colors.reset}` : index === 2 ? `  ${colors.blue}${statusText}${colors.reset}` : "";
+      return `${colors.italic}${colors.purple}${line}${colors.reset}${suffix}`;
+    }),
     "",
     `${colors.dim}${subtitle}${colors.reset}`,
     "",
@@ -96,7 +83,7 @@ function logoFrame(offset, subtitle) {
 }
 
 function renderWelcomeOnce(subtitle) {
-  const lines = logoFrame(0, subtitle);
+  const lines = logoFrame(subtitle);
   for (const line of lines) {
     process.stdout.write(line + "\n");
     if (line.trim()) sleep(35);
