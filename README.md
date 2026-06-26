@@ -91,6 +91,30 @@ echotik media download --url "https://..." --output ./assets
 
 The old `+search`, `+list`, and `+rank` commands were removed in `v0.2.0`.
 
+## Skills
+
+List bundled skills:
+
+```bash
+echotik skills
+echotik skills list
+echotik skills path
+```
+
+Install bundled skills into Codex:
+
+```bash
+echotik skills install codex
+```
+
+Install to a custom skills directory:
+
+```bash
+echotik skills install codex --target ~/.codex/skills
+```
+
+Restart Codex or open a new Codex session after installing skills.
+
 ## Agent Output Contract
 
 Successful commands print:

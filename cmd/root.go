@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	cmdapi "github.com/echotik/cli/cmd/api"
@@ -14,6 +13,7 @@ import (
 	cmdmedia "github.com/echotik/cli/cmd/media"
 	cmdproduct "github.com/echotik/cli/cmd/product"
 	cmdshop "github.com/echotik/cli/cmd/shop"
+	cmdskills "github.com/echotik/cli/cmd/skills"
 	cmdvideo "github.com/echotik/cli/cmd/video"
 	cmdwelcome "github.com/echotik/cli/cmd/welcome"
 	"github.com/echotik/cli/internal/output"
@@ -60,13 +60,6 @@ plus a generic API command for direct EchoTik endpoint calls.`,
 	root.AddCommand(cmdlive.New())
 	root.AddCommand(cmdmedia.New())
 	root.AddCommand(cmdwelcome.New())
-	root.AddCommand(&cobra.Command{
-		Use:   "skills",
-		Short: "Print agent skill installation guidance",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Fprintln(cmd.OutOrStdout(), "Install the bundled skills from this repository's skills/ directory into your agent.")
-			return nil
-		},
-	})
+	root.AddCommand(cmdskills.New())
 	return root
 }
