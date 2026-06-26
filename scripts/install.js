@@ -48,11 +48,10 @@ const shouldAnimate =
 
 const colors = {
   reset: "\x1b[0m",
-  italic: "\x1b[3m",
   dim: "\x1b[2m",
-  purple: "\x1b[38;2;101;90;236m",
-  muted: "\x1b[38;2;128;123;164m",
-  blue: "\x1b[38;2;88;112;255m",
+  purple: "\x1b[38;5;99m",
+  muted: "\x1b[38;5;244m",
+  blue: "\x1b[38;5;69m",
 };
 
 const italicLogo = [
@@ -74,7 +73,7 @@ function logoFrame(subtitle) {
     "",
     ...italicLogo.map((line, index) => {
       const suffix = index === 1 ? `  ${colors.muted}${versionText}${colors.reset}` : index === 2 ? `  ${colors.blue}${statusText}${colors.reset}` : "";
-      return `${colors.italic}${colors.purple}${line}${colors.reset}${suffix}`;
+      return `${colors.purple}${line}${colors.reset}${suffix}`;
     }),
     "",
     `${colors.dim}${subtitle}${colors.reset}`,
